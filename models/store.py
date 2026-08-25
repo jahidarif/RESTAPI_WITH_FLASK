@@ -10,5 +10,6 @@ class StoreModel(db.Model):
     items = db.relationship(
         "ItemModel",
         back_populates="store",
-        lazy="dynamic"
+        lazy="dynamic",
+        cascade="all, delete-orphan"
     )
