@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from sqlalchemy.exc import IntegrityError
 
 from db import db
 from models.item import ItemModel
@@ -29,7 +30,9 @@ class ItemList(MethodView):
     @blp.response(201, ItemSchema)
     def post(self, item_data):
 
-        if not StoreModel.query.get(item_data["store_id"]):
+        store = StoreModel.query.get(item_data["store_id"])
+
+        if not store:
             abort(
                 404,
                 message="Store not found"
@@ -52,8 +55,16 @@ class ItemList(MethodView):
             store_id=item_data["store_id"]
         )
 
-        db.session.add(item)
-        db.session.commit()
+        try:
+            db.session.add(item)
+            db.session.commit()
+
+        except IntegrityError:
+            db.session.rollback()
+            abort(
+                400,
+                message="Database integrity error"
+            )
 
         return item
 
@@ -92,7 +103,15 @@ class Item(MethodView):
         if "price" in item_data:
             item.price = item_data["price"]
 
-        db.session.commit()
+        try:
+            db.session.commit()
+
+        except IntegrityError:
+            db.session.rollback()
+            abort(
+                400,
+                message="Database integrity error"
+            )
 
         return item
 
@@ -106,8 +125,16 @@ class Item(MethodView):
                 message="Item not found"
             )
 
-        db.session.delete(item)
-        db.session.commit()
+        try:
+            db.session.delete(item)
+            db.session.commit()
+
+        except IntegrityError:
+            db.session.rollback()
+            abort(
+                400,
+                message="Unable to delete item"
+            )
 
         return {
             "message": "Item deleted successfully"

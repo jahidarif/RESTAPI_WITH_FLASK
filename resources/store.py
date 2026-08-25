@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from sqlalchemy.exc import IntegrityError
 
 from db import db
 from models.store import StoreModel
@@ -36,8 +37,16 @@ class StoreList(MethodView):
             name=store_data["name"]
         )
 
-        db.session.add(store)
-        db.session.commit()
+        try:
+            db.session.add(store)
+            db.session.commit()
+
+        except IntegrityError:
+            db.session.rollback()
+            abort(
+                400,
+                message="Database integrity error"
+            )
 
         return store
 
@@ -83,7 +92,15 @@ class Store(MethodView):
 
         store.name = store_data["name"]
 
-        db.session.commit()
+        try:
+            db.session.commit()
+
+        except IntegrityError:
+            db.session.rollback()
+            abort(
+                400,
+                message="Database integrity error"
+            )
 
         return store
 
@@ -97,8 +114,16 @@ class Store(MethodView):
                 message="Store not found"
             )
 
-        db.session.delete(store)
-        db.session.commit()
+        try:
+            db.session.delete(store)
+            db.session.commit()
+
+        except IntegrityError:
+            db.session.rollback()
+            abort(
+                400,
+                message="Unable to delete store because it is referenced by items"
+            )
 
         return {
             "message": "Store deleted successfully"
