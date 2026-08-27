@@ -11,7 +11,6 @@ class TagModel(db.Model):
 
     name = db.Column(
         db.String(80),
-        unique=False,
         nullable=False
     )
 

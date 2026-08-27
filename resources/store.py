@@ -1,6 +1,9 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import (
+    IntegrityError,
+    SQLAlchemyError
+)
 
 from db import db
 from models.store import StoreModel
@@ -17,17 +20,27 @@ blp = Blueprint(
 @blp.route("/store")
 class StoreList(MethodView):
 
-    @blp.response(200, StoreSchema(many=True))
+    @blp.response(
+        200,
+        StoreSchema(many=True)
+    )
     def get(self):
+
         return StoreModel.query.all()
 
+
     @blp.arguments(StoreSchema)
-    @blp.response(201, StoreSchema)
+    @blp.response(
+        201,
+        StoreSchema
+    )
     def post(self, store_data):
 
-        if StoreModel.query.filter_by(
+        existing_store = StoreModel.query.filter_by(
             name=store_data["name"]
-        ).first():
+        ).first()
+
+        if existing_store:
             abort(
                 400,
                 message="Store already exists"
@@ -43,9 +56,18 @@ class StoreList(MethodView):
 
         except IntegrityError:
             db.session.rollback()
+
             abort(
                 400,
-                message="Database integrity error"
+                message="Store already exists"
+            )
+
+        except SQLAlchemyError:
+            db.session.rollback()
+
+            abort(
+                500,
+                message="An error occurred while creating the store."
             )
 
         return store
@@ -54,10 +76,15 @@ class StoreList(MethodView):
 @blp.route("/store/<int:store_id>")
 class Store(MethodView):
 
-    @blp.response(200, StoreSchema)
+    @blp.response(
+        200,
+        StoreSchema
+    )
     def get(self, store_id):
 
-        store = StoreModel.query.get(store_id)
+        store = StoreModel.query.get(
+            store_id
+        )
 
         if not store:
             abort(
@@ -67,11 +94,17 @@ class Store(MethodView):
 
         return store
 
+
     @blp.arguments(StoreSchema)
-    @blp.response(200, StoreSchema)
+    @blp.response(
+        200,
+        StoreSchema
+    )
     def put(self, store_data, store_id):
 
-        store = StoreModel.query.get(store_id)
+        store = StoreModel.query.get(
+            store_id
+        )
 
         if not store:
             abort(
@@ -97,16 +130,28 @@ class Store(MethodView):
 
         except IntegrityError:
             db.session.rollback()
+
             abort(
                 400,
-                message="Database integrity error"
+                message="Store already exists"
+            )
+
+        except SQLAlchemyError:
+            db.session.rollback()
+
+            abort(
+                500,
+                message="An error occurred while updating the store."
             )
 
         return store
 
+
     def delete(self, store_id):
 
-        store = StoreModel.query.get(store_id)
+        store = StoreModel.query.get(
+            store_id
+        )
 
         if not store:
             abort(
@@ -118,13 +163,14 @@ class Store(MethodView):
             db.session.delete(store)
             db.session.commit()
 
-        except IntegrityError:
+        except SQLAlchemyError:
             db.session.rollback()
+
             abort(
-                400,
-                message="Unable to delete store because it is referenced by items"
+                500,
+                message="An error occurred while deleting the store."
             )
 
         return {
-            "message": "Store deleted successfully"
+            "message": "Store and associated items and tags deleted successfully"
         }, 200
