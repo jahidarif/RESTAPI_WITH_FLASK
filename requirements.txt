@@ -1,7 +1,10 @@
-Flask
+flask
 flask-smorest
-Flask-SQLAlchemy
-Flask-JWT-Extended
-Flask-Migrate
+python-dotenv
+sqlalchemy
+flask-sqlalchemy
+flask-jwt-extended
 passlib
-gunicorn 
+flask-migrate
+gunicorn
+psycopg2
