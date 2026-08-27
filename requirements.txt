@@ -1,5 +1,6 @@
-flask
+Flask
 flask-smorest
-flask-sqlalchemy
-flask-jwt-extended
+Flask-SQLAlchemy
+Flask-JWT-Extended
+Flask-Migrate
 passlib
