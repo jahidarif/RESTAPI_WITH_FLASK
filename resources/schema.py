@@ -126,3 +126,7 @@ class TagAndItemSchema(Schema):
     tag = fields.Nested(
         TagSchema
     )
+
+
+class UserRegisterSchema(UserSchema):
+    email = fields.Str(required=True)
