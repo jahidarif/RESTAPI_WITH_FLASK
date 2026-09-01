@@ -1,21 +1,16 @@
 from db import db
 
 
-class ItemModel(db.Model):
-    __tablename__ = "items"
+class TagModel(db.Model):
+    __tablename__ = "tags"
 
-    item_id = db.Column(
+    id = db.Column(
         db.Integer,
         primary_key=True
     )
 
     name = db.Column(
         db.String(80),
-        nullable=False
-    )
-
-    price = db.Column(
-        db.Float,
         nullable=False
     )
 
@@ -27,11 +22,11 @@ class ItemModel(db.Model):
 
     store = db.relationship(
         "StoreModel",
-        back_populates="items"
+        back_populates="tags"
     )
 
-    tags = db.relationship(
-        "TagModel",
-        back_populates="items",
+    items = db.relationship(
+        "ItemModel",
+        back_populates="tags",
         secondary="items_tags"
     )
