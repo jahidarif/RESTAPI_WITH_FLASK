@@ -16,7 +16,7 @@ from passlib.hash import pbkdf2_sha256
 
 from db import db
 from models import UserModel
-from resources.schema import UserSchema, UserRegisterSchema
+from schema import UserSchema, UserRegisterSchema
 from task import send_user_registration_email
 
 

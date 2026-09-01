@@ -12,7 +12,7 @@ from sqlalchemy.exc import (
 from db import db
 from models.item import ItemModel
 from models.store import StoreModel
-from resources.schema import (
+from schema import (
     ItemSchema,
     ItemUpdateSchema,
     PlainItemSchema

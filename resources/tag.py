@@ -8,7 +8,7 @@ from models import (
     StoreModel,
     ItemModel
 )
-from resources.schema import (
+from schema import (
     TagSchema,
     TagAndItemSchema
 )

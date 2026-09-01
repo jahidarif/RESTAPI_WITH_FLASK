@@ -7,7 +7,7 @@ from sqlalchemy.exc import (
 
 from db import db
 from models.store import StoreModel
-from resources.schema import StoreSchema
+from schema import StoreSchema
 
 
 blp = Blueprint(
